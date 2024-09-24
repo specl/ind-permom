@@ -1,0 +1,15 @@
+\begin{figure*}[hbt]
+\ifnextchar[{\eatarg}{}
+[h]
+\includegraphics{p_files/figure-latex/paradigm-1} \caption{The trial structure of the two tasks used in the experiment. The 3-by-3 grid is illustrative; in the experiment the grid was 5-by-5 in size.}\label{fig:paradigm}
+\end{figure*}
+\begin{figure*}[hbt]
+\ifnextchar[{\eatarg}{}
+[h]
+\includegraphics{p_files/figure-latex/results-1} \caption{A. Scatter plot of thresholds show a negative correlation across tasks.  B. Posterior distribution of correlation coefficient $\rho$ shows decisive evidence for a negative correlation.}\label{fig:results}
+\end{figure*}
+\begin{figure*}[hbt]
+\ifnextchar[{\eatarg}{}
+[h]
+\includegraphics{p_files/figure-latex/result2-1} \caption{Duration plays an opposite role in fusion and masking.  Increasing duration negatively affects fusion performance and positively affects masking performance.  Points are individual-by-duration-level combinations.}\label{fig:result2}
+\end{figure*}

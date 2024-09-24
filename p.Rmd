@@ -1,0 +1,293 @@
+---
+title             : "Individual Differences In Perception Do Not Reflect Temporal Integration in A Perceptual Moment"
+shorttitle        : "Individual Differences In Perception"
+
+author: 
+  - name: Aaron E. Fawcett
+    affiliation: "1"
+  - name: Mahbod Mehrvarz
+    affiliation: "1"
+  - name: Jeffrey N. Rouder
+    affiliation: "1"
+    corresponding: yes    # Define only one corresponding author
+    email: jrouder@uci.edu
+    address: Department of Cognitive Science, University of California, Irvine, CA, 92697
+
+affiliation       :
+  - id: 1
+    institution: University of California, Irvine
+
+authornote: |
+  Version 1, Aug, 2024. AEF was supported by a Undergraduate Research Opportunity Grant from the University of California, Irvine and by NSF 2126976. JNR was supported by ONR N00014-23-1-2792.  
+  Open Science Practices: The data, analysis scripts, and code used to generate the figures are openly available at https://github.com/specl/ind-permom.
+
+abstract          :  "Stimulus duration has the opposite effect in masking and fusion tasks: longer durations enhance performance in masking tasks but impair it in fusion tasks.Several visual theories explain these and related phenomena with recourse to small temporal window where stimuli are integrated or superimposed. Accordingly, individuals with a long temporal window should exibit good performance in the fusion task and poor performance in the masking task. Therefore, performance in these two tasks should result in a negative correlation. We tested this negative correlation and found decisive evidence to the contrary, a positive correlation ($N=21$, $BF=256$). People who perform well on the fusion task also perform well on the masking task. Hence, individual variation in a temporal window does not drive individual differences in vision. Instead, we suspect the positive correlation reflects a common ability to read out from and to refresh iconic storage."
+  
+keywords          : "Backwards Masking, Temporal Integration, Vision, Individual Differences"
+
+bibliography      : ["zlab.bib"]
+figsintext        : no
+figurelist        : no
+tablelist         : no
+footnotelist      : no
+lineno            : no
+
+
+class             : "man"
+output            : papaja::apa6_pdf
+csl               : apa6.csl
+header-includes   :
+   - \usepackage{bm}
+   - \usepackage{amsmath}
+   - \usepackage{setspace}
+   - \usepackage{pcl}
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE, 
+  message=FALSE, 
+  warning = FALSE,
+  fig.pos = "h", out.extra = "")
+```
+
+```{r}
+library(shape)
+library(R2jags)
+library(papaja)
+```
+
+```{r}
+dataFromRepo=T
+set.seed(1234)
+```
+
+Consider two visual paradigms where time or duration plays an opposing role.  One of these two is *backwards masking*, and an example is shown in Figure \ref{fig:paradigm}A.  A typical backwards-masking paradigm goes as follows:  First,  a target stimulus, a single dot in the figure, is briefly flashed.  Then, after a delay, it is subsequently masked, which is composed of an array of dots.  The delay between the target and mask is called the *interstimulus interval* (ISI), and the duration of the ISI is critical.  If the duration is long, then the target is easily seen; if it is  short, then the target is not as easily seen.  In fact, in most backwards masking paradigms, visibility rises monotonically with ISI duration [@Breitmeyer.1984].
+
+```{r paradigm,fig.cap="The trial structure of the two tasks used in the experiment. The 3-by-3 grid is illustrative; in the experiment the grid was 5-by-5 in size."}
+
+source('paradigm.R')
+par(mfrow=c(1,2))
+masking()
+intgr()
+```
+
+Duration plays an opposite role in *fusion* tasks.  A classic fusion task, from @DiLollo.Wilson.1978, is shown in Figure \ref{fig:paradigm}B.  Here, participants are shown two temporally separated targets.  In this case, each target is 4 of 9 dots.  If the targets are presented simultaneously, then the missing dot is obvious.  As the duration between the targets is lengthened, performance suffers.  
+
+The opposing role of duration in these two paradigms is not surprising.  One simple explanation is that performance is mediated by integration of visual-stimulus events in a brief temporal window of about 100 ms.  Events that fall within the temporal window are bound together into one percept; those that are outside of it are differentiated into separate percepts.  The window has been called the perceptual moment [@Stroud.1956], and the motif that there is a small temporal integration window is common in theories of vision and masking [@Allport.1968;@Busey.Loftus.1994;@DiLollo.1980;@Scharnowski.etal.2007;@Smith.1995;@Kahneman.1968].  If two stimuli are in the window, then they are superimposed resulting in better performance in the fusion task.  By the same token, this superposition results in worse performance in the masking task as the mask obscures the target.  And, accordingly, if an individual has a long temporal window, then they should be relatively good at the fusion task at the expense of the masking task and, conversely, if they have a short temporal window, then they should be relatively good at the masking task at the expense of the fusion task.  
+
+This converse relationship gives rise to a novel prediction about individual differences.  If variability in the time frame of temporal integration is a salient individual-difference factor in perception, then there should be a negative correlation. In other words, individuals who are relatively better in one of two task should be relatively worse in the other.  This converse relationship, should it exist, is novel precisely because such negative correlations are rarely if ever observed in measures of cognitive performance.  People who are good at one task tend to be good at other tasks.  This positive correlation is almost always observed and known as Spearman's positive manifold [@Ritchie.2015].
+
+The main question here is whether performance across masking and fusion tasks is negatively correlated, in concordance with substantial variability in the temporal window, or positively correlated, in concordance with the positive manifold.  The following experiment is an individual-differences study where individuals alternated between the two tasks.  To foreshadow, the results are definitive---there is a positive correlation in performance.  People who need relatively small ISIs in the backwards masking task can still integrate over relatively large ISIs in the fusion task.
+
+# Method
+
+## IRB
+The experiment was run in accordance with UCI IRB 2823, self-determined exempt (Category 3) with a waiver from obtaining written documentation of informed consent.  
+
+## Participants  
+Twenty-one University of California-Irvine undergraduate students served as participants in exchange for extra credit in an introductory psychology course. Participants were enrolled into an optional-sampling strategy until the Bayes factor exceeded 10-to-1 in favor of positive or negative correlation, with a bottom threshold of 20 participants [@Schonbrodt.etal.2017].
+
+## Tasks \& Apparatus
+The experiment was comprised of two tasks: a masking task and a fusion task.  In both tasks, the screen resolution was set at 1920 pixels $\times$ 1080 pixels, and the screen refresh rate was set at 165hz.  The screen measured 52.6 cm $\times$ 29.6 cm with each pixel measuring .0274 cm on a side.  Participants sat 176 cm from the screen.
+
+
+### Masking Task.
+
+The basic structure of the masking task is shown in Figure \ref{fig:paradigm}A.  The grid used was a 5-by-5 (25 element) grid similar to the 3-by-3 grid shown in Figure \ref{fig:paradigm}.  This grid was 192 pixels on a side and subtended 1.7 degrees of visual angle.  The background was black, and stimuli and masks were drawn in white. First, participants were presented with a fixation cross (727.3 ms) followed by a blank (363.6 ms).  The target, a single white dot whose location was randomly selected from one of 16 positions in the interior of the five-by-five grid, was displayed next for 6.06 ms (1 refresh at 165hz).  This target was followed by a blank interstimulus interval (ISI), the duration was determined by an adaptive staircase, discussed subsequently, so that performance was intermediate between floor and ceiling.  A subsequent mask, consisting of an array of 25 white dots arranged in a 5 x 5 grid, was then displayed for 121.2 ms.  The mask was followed by a blank (363.6 ms) and a response screen, which was comprised of smaller red dots. The participant then moved the mouse over one of the dots, and, if the mouse was close to a dot, it turned larger and white to indicated it had been selected.  The participant finalized the selection by depressing the mouse key.  Auditory feedback was provided immediately thereafter:  A short tone indicated a correct selection while the absence of the tone indicated an error selection.
+
+
+### Fusion Task 
+
+The design of the fusion task, as shown in Figure \ref {fig:paradigm}B, shares general settings with the masking task. However, it features two distinct differences: In lieu of the target and mask in the previous task, participants are presented with two targets separated by an ISI that was adjusted adaptively through the staircase procedure. As the full grid contains 25 elements, each target consisted of 12 randomly selected white dots, with one empty location serving as the target.
+
+## Adaptive Staircase
+The duration of ISI is critical.  We used a two-down, one-up staircase procedure [@Levitt.1971] to adjust the ISI so performance was between floor and ceiling for each individual in each task.  In the masking task, durations were shortened by a refresh (6.06 ms) if two consecutive trials were performed correctly.  Durations were lengthened by a refresh following an error response.  Conversely, in the fusion task, durations were lengthened by a refresh following two correctly performed trials and shortened by a refresh following an error response.  Note that the direction of shortening and lengthening is opposite in the tasks as duration plays an opposing role.  Also note that performance in the 2-up/1-down staircase converges to an accuracy rate of 70.7% [@Levitt.1971]. 
+
+
+## Procedure
+
+Sessions began with a greeting, then the study letter was presented, and informed consent was explained and obtained. A research assistant accompanied the participant to the experiment room, initialized the experimental program, and prompted the participant to provide demographic information.  Upon completion, the participant was sat in front of the screen and given a mouse for responses. To ensure understanding, three static images of each task were presented, followed by a block of 20 practice trials for each condition to ensure the participants understood the task and response requirements. Before exiting the experiment room, the research assistant answered any clarifying questions about the tasks. The participant then completed four blocks comprising 65 trials per block.  Tasks were alternated across blocks.  Upon completing the experiment, the participant was debriefed, and any problems were noted.  The session took at most 30 minutes to complete.
+
+# Results and Analysis
+
+The practice block of 20 trials of each task were discarded.  For the remaining trials, individual-by-task thresholds were computed by averaging the logarithm of ISI duration in the 2-down/1-up threshold.  Logarithm-scale thresholds are popular in audition and vision and log-time thresholds may be expressed in decibel units.  Figure \ref{fig:results}A shows the scatter plot of these thresholds (units are ms but spaced on a logarithm scale).  The negative correlation is evident---people with a higher threshold in one task have a lower one in the other.  This negative correlation in thresholds implies a positive correlation in performance as high thresholds correspond to good performance in the fusion tasks but bad performance in the masking task.  Hence, people who are better at the fusion task are also better at the masking task. As such, the result comports with Spearman's positive manifold.
+
+
+```{r loadCleanData}
+if (dataFromRepo){
+  link = "https://raw.githubusercontent.com/PerceptionCognitionLab/data5/main/percMoment/pm2/all.dat"
+  raw=read.csv(url(link),head=F,
+             colClasses=c(rep("numeric",8),"logical","numeric","logical"))
+
+  colnames(raw) <-c("pid","sid","blk","task","trl","soa","target","response","correct",	"realTime","pass")
+
+  raw$correct <- ifelse(raw$target - raw$response != 0, 0, 1) #why?
+
+  bad0 <- !raw$pass
+  bad1 <- raw$blk<2
+  bad2 <- raw$sid %in% c(41,42,43)
+  goodRows <- !(bad0 | bad1 |bad2)
+  goodCols <- c(1,4,6,9)
+  clean <- raw[goodRows,goodCols]
+  clean$sub=as.integer(as.factor(clean$pid))
+  write.table(clean,file="clean.dat",row.names = F,quote = F)}
+clean=read.table("clean.dat",head=T)
+```
+
+```{r}
+subDat=tapply(log(clean$soa*1000/165),list(clean$sub,clean$task),mean)
+```
+
+```{r,include=F}
+y=scale(subDat)
+
+mod1 <- "
+model{
+  mu <- c(0,0)
+  rho ~ dunif(-1,1)
+  Sigma[1,1] <- 1
+  Sigma[1,2] <- rho
+  Sigma[2,1] <- rho
+  Sigma[2,2] <-1
+  for (i in 1:I){
+    Y[i,1:2] ~dmnorm.vcov(mu, Sigma)}
+}  
+"
+
+run1=function(y,M=200){
+  data=list(
+    "I"=dim(y)[1],
+    "Y"=y)
+    out=jags(data=data,
+             parameters=c("rho"),
+             model.file=textConnection(mod1),
+             n.chains=1,n.iter=M,n.thin=1,n.burnin=M/10)
+    return(out)}
+
+out=run1(y,M=10000)
+rho=out$BUGSoutput$sims.list$rho
+pm=round(mean(rho),2)
+neg=mean(rho<0)
+pos=mean(rho>0)
+bf=neg/pos
+```
+
+```{r results, fig.cap="A. Scatter plot of thresholds show a negative correlation across tasks.  B. Posterior distribution of correlation coefficient $\\rho$ shows decisive evidence for a negative correlation."}
+par(mfrow=c(1,2),mgp=c(2,1,0))
+par(pty='s')
+plot(subDat,axes=F,xlim=range(subDat),ylim=range(subDat),
+     ylab="Masking Threshold (ms)",
+     xlab="Fusion Threshold (ms)",
+     pch=19
+     )
+axis(1,at=log(c(10,20,50)),label=c( 10,20,50))
+axis(1,at=log(9:50),label=NA)
+axis(2,at=log(c(10,20,50)),label=c(10,20,50))
+axis(2,at=log(9:50),label=NA)
+text(log(40),log(40),bquote(R == .(pm)))
+mtext(side=3,adj=0,cex=1.2,"A")
+hist(rho,main="",prob=T,breaks=30,xlim=c(-1,1),col='lightblue',
+     xlab=expression(paste("Parameter ",rho)))
+abline(v=0)
+mtext(side=3,adj=0,cex=1.2,"B")
+```
+
+
+
+The statistical significance of the results was assessed through Bayes factor as follows:  Let $T_{ij}$ denote the log-threshold for the $i$th individual in the $j$th task, $j=1,2$ for the masking and fusion tasks, respectively.  These thresholds are scaled into $z$-scores: $Z_{ij}=(T_{ij}-m_j)/s_j,$ where $m_j$ and $s_j$ are the mean and standard deviation of these thresholds for each task.  These z-scores are modeled as:
+\[
+\begin{pmatrix} Z_{i1}\\ Z_{i2} \end{pmatrix} \mid \rho \sim \mbox{N}_2\left[
+\begin{pmatrix} 0 \\ 0 \\ \end{pmatrix}, \;
+\begin{pmatrix} 1 & \rho\\ \rho & 1\end{pmatrix}
+\right]
+\]
+where $\rho$ is the population correlation among the two tasks.  The model is conditional on $\rho$ which, in turn, must be specified.  A general model without a sign constraint on correlation, denoted $\calM_g$, is:
+\[
+\calM_g: \quad \rho \sim \mbox{Unif}(-1,1).
+\]
+The two competing hypotheses are expressed as sign constraints:
+
+\[\begin{aligned}
+\calM_-:& \quad \rho \sim \mbox{Unif}(-1,0)\\
+\calM_+:& \quad \rho \sim \mbox{Unif}(0,1)
+\end{aligned}
+\]
+
+The main target of inference is the Bayes factor between $\calM_-$ and $\calM_+$.  The Bayes factor is the probability of the data under one model relative to the other:
+\[
+B_{-,+}\;=\;\frac{\Pr(\bfZ \mid \calM_-)}{\Pr(\bfZ \mid \calM_+)},
+\]
+where $\bfZ$ is the collection of all $z$-scored thresholds.  Computation of the Bayes factor is convenient in the encompassing approach [@Hoijtink.etal.2008].  Accordingly,
+\begin{equation} \label{BF}
+B_{-,+}\;=\;\frac{\Pr(\bfZ \mid \calM_-)}{\Pr(\bfZ \mid \calM_+)} = \frac{\Pr(\rho<0|\bfZ, \calM_g)}{\Pr(\rho>0|\bfZ,\calM_g)}.
+\end{equation}
+According to (\ref{BF}), the critical quantity is the posterior distribution of parameter $\rho$ under the general model.  The Bayes factor is a ratio of how much probability mass of this posterior is below zero relative to how much is above zero.  In analysis, this posterior distribution may be sampled in JAGS [@Plummer.2003] or stan [@Carpenter.etal.2017], and the proportions of samples above and below zero serves as the probability mass.
+
+Figure \ref{fig:results}B shows the posterior distribution of $\rho$ under the general model.  The posterior mean is `r printnum(pm,digits=2)`;
+the amount of mass below and above zero is `r printnum(neg,digits=4)` and `r printnum(pos,digits=4)`, respectively, and the corresponding Bayes factor is `r printnum(bf,digits=0)` in favor of the negative model.  This ratio is decisive: thresholds are negatively correlated and performance is positively correlated. 
+
+Note that the comparison here is different from the usual one where we wish to compare zero or null correlation to some correlation, be it positive or negative.  Here, we explicitly use the positive-vs-negative comparison because it maps exactly into the competing hypotheses.  The usage of Bayes factors allow researchers the flexibility to test the propositions of greatest theoretical interest rather than the one-size-fits-all approach inherent in null-hypothesis significance testing [@Rouder.etal.2016c].
+
+The analysis here is predicated on an opposing role of duration.  In designing the staircases, we assumed that long durations negatively and positively affected accuracy in masking and fusion, respectively.  Is it so?
+Figure \ref{fig:result2} shows the effect of duration on accuracy.  To make data from individuals comparable, duration was measured as a multiple of individual's threshold.  The many points on the figure come about because each individual experiences several different levels of duration, and there is a point for each individual-by-duration combination.  The lines are loess smooths [@Cleveland.1981], and the trends are obvious and in the expected direction.  Indeed, duration plays an opposing role in the tasks.
+
+
+```{r result2,fig.cap="Duration plays an opposite role in fusion and masking.  Increasing duration negatively affects fusion performance and positively affects masking performance.  Points are individual-by-duration-level combinations."}
+par(mfrow=c(1,2),mgp=c(2,1,0))
+x=NULL
+y=NULL
+clean$relSOA=log(clean$soa*1000/165)-subDat[cbind(clean$sub,clean$task)]
+for (s in 1:max(clean$sub)){
+  filter=clean$sub==s & clean$task==0
+  test=clean[filter,]
+  temp=tapply(test$correct,test$relSOA,mean)
+  x=c(x,as.numeric(names(temp)))
+  y=c(y,as.numeric(temp))}
+o=order(x)
+plot(x[o],y[o],pch=19,cex=.5,col='darkgreen',axes=F,
+ylab="Proportion Correct",xlab="Duration (Multiple of Threshold)")
+lines(lowess(x[o],y[o],f=.4),lwd=2)
+axis(2)
+axis(1,at=log(c(.2,.5,1,2,5)),lab=c(.2,.5,1,2,5))
+# box()
+mtext(side=3,adj=0,cex=1.2,"Fusion")
+
+x=NULL
+y=NULL
+clean$relSOA=log(clean$soa*1000/165)-subDat[cbind(clean$sub,clean$task)]
+for (s in 1:max(clean$sub)){
+  filter=clean$sub==s & clean$task==1
+  test=clean[filter,]
+  temp=tapply(test$correct,test$relSOA,mean)
+  x=c(x,as.numeric(names(temp)))
+  y=c(y,as.numeric(temp))}
+o=order(x)
+plot(x[o],y[o],pch=19,cex=.5,col='darkgreen',axes=F,
+ylab="Proportion Correct",xlab="Duration (Multiple of Threshold)")
+lines(lowess(x[o],y[o],f=.4),lwd=2)
+axis(2)
+axis(1,at=log(c(.2,.5,1,2,5)),lab=c(.2,.5,1,2,5))
+# box()
+mtext(side=3,adj=0,cex=1.2,"Masking")
+
+
+```
+
+# Discussion
+
+A common theme in vision theories is that there is a small temporal window of integration.  We asked whether variation in the duration of this window is a driver of individual differences in fusion and masking tasks.  If this variation was a driver, one would expect a novel negative correlation where people with longer windows perform better at the fusion task and worse at the masking task.  This negative correlation did not hold.  People who performed better in the masking task also performed better at the fusion task.  This pattern cannot be accounted for with variation in the temporal window.
+
+What type of mechanisms could account for these individual-difference patterns?  An alternative account for backwards masking is an *interruption* account [@Kahneman.1968].  Accordingly, it takes time to process the target, and the presentation of the mask interrupts this processing.  Target processing is terminated before the target is registered and processing of the mask proceeds unabated.  The conventional means of discriminating between an integration account and an interruption account is to vary both the brightness and timing of the target and mask.  The integration account predicts that the relative integrated energy or brightness determines performance; the interruption account predicts that the ISI determines performance.  By-and-large, many researchers ascribe that both integration accounts and interruption accounts hold, but for different stimuli, at different time scales, and at different levels of the visual system [@Turvey.1973;@Enns.DiLollo.2000].  To rough approximation, integration seems to hold at more sensory levels, on time scales less than 100 ms, for low-contrast targets, and for masks that are either pedestals or fine-grained white noise.  Interruption seems to be at a more central level, on time scales around 200 ms, for well-contrasted targets that are objects and masks that have object features.  Moreover, integration is more compatible with forward masking (the deleterious effect of a mask preceding a target) and interruption is more compatible with backwards masking, metacontrast masking [@Bridgeman.1971] and object-substitution masking [@Enns.DiLollo.2007].  We suspect that our target and mask are object-like in that they have well localized positions, and that interruption may be more responsible for masking than integration.
+
+If interruption is the main source of masking in this task, then the speed of readout from iconic memory may vary across people.  But what does this speed have to do with the fusion task?  We suspect that the fusion task too is not a matter of simple energy integration.  Instead, the rapidly presented first target needs to be actively maintained in iconic memory during the ISI.   We speculate that there is a refreshing processes [@Camos.etal.2018], and the speed of refreshing may determine the success of maintenance.  The positive correlation may come about from a common facility in reading from and maintaining iconic memory.
+
+Of course, the positive correlation found here in performance may have a more mundane source such as motivation.  While we cannot rule such factors out, we think some obvious sources of motivation differences may be ruled out by the design.  People who do poorly or feel they do poorly on tasks are not well motivated.  One worries about motivation differences when people who do well are more rewarded.  Yet, here, because of the adaptive design, all  participants had the same level of performance and received positive feedback on about 71% of trials. Participants had no notion of how fast the stimuli were flashed, and certainly had no basis to compare their performance to others.  
+
+The main message here is that the temporal window of integration does not account for individual differences and that theories of what may do so remain speculative for now.
+
+
+\newpage
+
+# References
+
